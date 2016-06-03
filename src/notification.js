@@ -121,9 +121,22 @@ const notification = {
             })
         );
     },
+    receivePush(event) {
+      
+        let obj = event.data.json();
+        console.log("received push", obj)
+        
+        event.waitUntil(
+            run("commandSequence", {
+                sequence: obj
+            })
+        );
+        
+    },
     addListeners() {
         self.addEventListener('notificationclick', notification.parseNotificationAction);
         self.addEventListener('notificationclose', notification.parseNotificationClose);
+        self.addEventListener('push', notification.receivePush);
     }
 }
 

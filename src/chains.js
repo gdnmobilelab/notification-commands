@@ -98,8 +98,13 @@ const chains = {
                 
                 if (actions.length === 0) {
                     // If neither have any items left, we show the article link.
-                    actions.push(linkCommands[0]);
-                    actions.push(linkCommands[1]);
+                    if (linkCommands[0]) {
+                        actions.push(linkCommands[0]);
+                    }
+                    
+                    if (linkCommands[1]) {
+                        actions.push(linkCommands[1]);
+                    }
                 }
                 
                 

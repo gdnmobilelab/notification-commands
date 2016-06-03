@@ -13,7 +13,7 @@ const commands = {
     notification,
     commandSequence,
     browser,
-    update: self.registration.update
+    update: () => self.registration.update()
 };
 
 runCommand.commands = commands;
