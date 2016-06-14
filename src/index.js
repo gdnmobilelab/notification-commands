@@ -4,7 +4,7 @@ const notification = require('./notification');
 const commandSequence = require('./command-sequence');
 const runCommand = require('./run-command');
 const browser = require('./browser');
-
+const fromURL = require('./from-url');
 const config = require('./config');
 
 const commands = {
@@ -13,6 +13,7 @@ const commands = {
     notification,
     commandSequence,
     browser,
+    fromURL,
     update: () => self.registration.update()
 };
 

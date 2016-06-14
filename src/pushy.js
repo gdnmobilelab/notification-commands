@@ -17,7 +17,21 @@ const pushyRequest = function(endpoint, method = 'GET', body = '') {
         headers: headers,
         body: JSON.stringify(body)
     })
-    .then((response) => response.json())
+    .then((response) => {
+        if (response.status < 200 || response.status > 299) {
+            return response.text()
+            .then((text) => {
+                throw new Error(text);
+            })
+        }
+        return response.json()
+        .then((json) => {
+            if (json.errorMessage) {
+                throw new Error(json.errorMessage);
+            }
+            return json;
+        })
+    })
 }
 
 module.exports = {
