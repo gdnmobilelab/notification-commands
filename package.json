@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "create-guid": "git+https://github.com/gdnmobilelab/create-guid.git",
+    "google-analytics-protocol": "^1.0.0",
     "promise-tools": "^1.0.2",
     "treo": "^0.5.1"
   },
