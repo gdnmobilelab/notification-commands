@@ -6,6 +6,7 @@ const runCommand = require('./run-command');
 const browser = require('./browser');
 const fromURL = require('./from-url');
 const config = require('./config');
+const cache = require('./cache');
 
 const commands = {
     pushy,
@@ -14,6 +15,7 @@ const commands = {
     commandSequence,
     browser,
     fromURL,
+    cache,
     update: () => self.registration.update()
 };
 

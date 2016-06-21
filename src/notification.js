@@ -59,6 +59,7 @@ const notification = {
                 ec: 'Notification',
                 ea: 'show',
                 el: opts.title,
+                ni: 1,
                 // This requires you to have a custom dimension set up to record notification IDs
                 cd1: notificationID
             })
@@ -154,7 +155,8 @@ const notification = {
             analytics({
                 t: 'event',
                 ec: 'Push',
-                ea: 'received'
+                ea: 'received',
+                ni: 1
             });
         } else {
             event.waitUntil(
@@ -166,6 +168,7 @@ const notification = {
                 t: 'event',
                 ec: 'Push',
                 ea: 'received',
+                ni: 1,
                 el: obj.pushId
             });
         }
