@@ -1,50 +1,43 @@
 const getRegistration = require('./util/get-registration');
 const config = require('./config');
 
+const pollRequest = function(endpoint, method = 'GET', body = '') {
+
+    if (!config.poll || !config.poll.key || !config.poll.host) {
+        throw new Error("Must set poll key and host");
+    }
+
+    return fetch(config.poll.host + endpoint, {
+        method: method,
+        headers: {
+            'Accept': 'application/json',
+            'Content-type': 'application/json',
+            'x-polls-api-key': config.poll.key
+        },
+        body: JSON.stringify(body)
+    });
+};
+
 module.exports = {
-    castVote: function ({url, answerId}) {
-        if (!config.poll || !config.poll.key) {
-            throw new Error("Must set pull key");
-        }
-        
+    castVote: function ({pollId, answerId}) {
         getRegistration().pushManager.getSubscription().then((subscription) => {
-            return fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-type': 'application/json',
-                    'x-polls-api-key': config.poll.key
-                },
-                body: JSON.stringify({
-                    answerId: answerId,
-                    user: {
-                        id: subscription.endpoint,
-                        subscription: subscription
-                    }
-                })
+            return pollRequest('/polls/' + pollId + '/vote', 'POST', {
+                answerId: answerId,
+                user: {
+                    id: subscription.endpoint,
+                    subscription: subscription
+                }
             });
         });
     },
-    pullResults: function({url}) {
-        if (!config.poll || !config.poll.key) {
-            throw new Error("Must set pull key");
-        }
-
+    pollResults: function({pollId}) {
         getRegistration().pushManager.getSubscription().then((subscription) => {
-            return fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-type': 'application/json',
-                    'x-polls-api-key': config.poll.key
-                },
-                body: JSON.stringify({
-                    user: {
-                        id: subscription.endpoint,
-                        subscription: subscription
-                    }
-                })
-            });
+            return pollRequest('/polls/' + pollId + '/results', 'POST', {
+                user: {
+                    id: subscription.endpoint,
+                    subscription: subscription
+                }
+            })
         });
     }
 };
