@@ -1,5 +1,5 @@
 const getRegistration = require('./util/get-registration');
-
+const config = require('./config');
 
 module.exports = {
     castVote: function ({url, answerId}) {
