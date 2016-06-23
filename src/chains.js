@@ -49,6 +49,25 @@ const chains = {
             })
         })
     },
+    notificationAtIndex: function(opts) {
+        return notificationStore
+            .index("byChain")
+            .get(opts.chain)
+        .then((chainItems) => {
+            if (chainItems.length === 0) {
+                return console.error("No chain with the name: ", opts.chain)
+            }
+            let chainEntry = chainItems[opts.index];
+            if (!chainEntry) {
+                return console.error("No notification at index #", opts.index);
+            }
+            return run("notification.show", {
+                title: chainEntry.title,
+                options: chainEntry.notificationTemplate,
+                actionCommands: chainEntry.actionCommands
+            });
+        })
+    },
     notificationFromChain: function(opts) {
         return getNextNotificationForChain(opts.chain)
         .then((chainEntry) => {
