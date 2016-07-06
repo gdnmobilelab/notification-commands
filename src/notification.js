@@ -34,23 +34,48 @@ const mapActionsToNotification = function(notification, actions) {
 
 const getNotificationID = function(baseObj) {
     if (!baseObj || !baseObj.data) {
-        return null;
+        console.error("Notification does not have an ID.")
+        if (baseObj.title) {
+            return baseObj.title
+        } else {
+            return null;
+        }
+        
     }
     return baseObj.data.notificationID;
 }
 
 const notification = {
-    show: function(opts) {
+    show: function(opts, event, context) {
         
         if (opts.actionCommands) {
             mapActionsToNotification(opts.options, opts.actionCommands);
         }
 
-        let notificationID = getNotificationID(opts.options);
+        let swapNotificationActions = {opts};
 
-        if (!notificationID) {
-            console.error("Notification does not have an ID.")
+        if (context) {
+            // We can pass context through notifications
+            opts.options.data.context = context;
+            if (swapNotificationActions !== true && swapNotificationActions !== false) {
+                swapNotificationActions = context.swapNotificationActions
+            }
+            
         }
+
+        if (swapNotificationActions === true && opts.options.actions.length > 1) {
+            let newFirstAction = opts.options.actions[1];
+            let newSecondAction = opts.options.actions[0];
+
+            opts.options.actions = [
+                newFirstAction,
+                newSecondAction
+            ]
+        }
+
+        
+
+        let notificationID = getNotificationID(opts.options);
         
         return getRegistration().showNotification(opts.title, opts.options)
         .then(() => {
@@ -59,7 +84,6 @@ const notification = {
                 ec: 'Notification',
                 ea: 'show',
                 el: opts.title,
-                ni: 1,
                 // This requires you to have a custom dimension set up to record notification IDs
                 cd1: notificationID
             })
@@ -82,7 +106,8 @@ const notification = {
             return event.waitUntil(
                 run("commandSequence", {
                     sequence: event.notification.data.onTap,
-                    event: event
+                    event: event,
+                    context: event.notification.data ? event.notification.data.context : null
                 })
                 .then(() => {
                     analytics({
@@ -98,15 +123,16 @@ const notification = {
         
         if (event.action.indexOf('__command') === 0) {
             // it's an action mapped to a command sequence.
-            
+
             let sequenceIndex = parseInt(event.action.split("::")[1], 10);
             let commandSequence = event.notification.data.commandSequences[sequenceIndex];
             let actionLabel = event.notification.data.commandToActionLabelMap[sequenceIndex];
             
-            event.waitUntil(
+            return event.waitUntil(
                 run("commandSequence", {
                     sequence: commandSequence,
-                    event: event
+                    event: event,
+                    context: event.notification.data ? event.notification.data.context : null
                 }).then(() => {
                     analytics({
                         t: 'event',
@@ -155,8 +181,7 @@ const notification = {
             analytics({
                 t: 'event',
                 ec: 'Push',
-                ea: 'received',
-                ni: 1
+                ea: 'received'
             });
         } else {
             event.waitUntil(
@@ -168,7 +193,6 @@ const notification = {
                 t: 'event',
                 ec: 'Push',
                 ea: 'received',
-                ni: 1,
                 el: obj.pushId
             });
         }

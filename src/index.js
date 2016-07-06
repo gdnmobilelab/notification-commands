@@ -8,6 +8,7 @@ const poll = require('./poll');
 const fromURL = require('./from-url');
 const config = require('./config');
 const cache = require('./cache');
+const context = require('./context');
 
 const commands = {
     pushy,
@@ -18,6 +19,7 @@ const commands = {
     fromURL,
     cache,
     poll,
+    context,
     update: () => self.registration.update()
 };
 

@@ -64,7 +64,7 @@ const chains = {
             return run("notification.show", {
                 title: chainEntry.title,
                 options: chainEntry.notificationTemplate,
-                actionCommands: chainEntry.actionCommands
+                actionCommands: chainEntry.actions
             });
         })
     },

@@ -1,4 +1,4 @@
-const runCommand = function(name, opts, event) {
+const runCommand = function(name, opts, event, context) {
     let nameSplit = name.split('.');
     let currentTarget = runCommand.commands;
     
@@ -8,7 +8,9 @@ const runCommand = function(name, opts, event) {
             throw new Error("Could not find target: " + name)
         }
     });
-    return currentTarget(opts, event);
+    return currentTarget(opts, event, context);
 }
 
 module.exports = runCommand;
+
+self.runCommand = runCommand;
