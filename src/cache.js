@@ -1,6 +1,6 @@
 const PromiseTools = require('promise-tools');
 
-export default {
+module.exports = {
     addToCache(opts) {
         return caches.open(opts.cacheName)
         .then(function(cache) {
