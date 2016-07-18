@@ -4,34 +4,8 @@ const run = require('./run-command');
 
 const notificationStore = db.store("notificationChains");
 
-const store = {
-    get: function(chain) {
-        return new Promise((resolve, reject) => {
-            notificationStore
-                .index("byChain")
-                .get(chain, function(err, ch) {
-                    resolve(ch);
-                })
-        })
-    },
-    del: function(del) {
-        return new Promise((resolve, reject) => {
-            notificationStore.del(del, function() {
-                resolve();
-            })
-        })
-    },
-    put: function(item) {
-        return new Promise((resolve, reject) => {
-            notificationStore.put(item, function (err, item) {
-                resolve(item);
-            })
-        });
-    }
-};
-
 const getNextNotificationForChain = function(chain, skipID) {
-    return store.get(chain)
+    return notificationStore.get(chain)
         .then((chainItems) => {
             return chainItems
                 .filter((i) => i.read !== true && (!skipID || i.id !== skipID))
@@ -51,9 +25,9 @@ const chains = {
         })
     },
     delete: function(chain) {
-        return store.get(chain)
+        return notificationStore.get(chain)
         .then((chainItems) => {
-            return PromiseTools.map(chainItems, (item) => store.del(item.id));
+            return PromiseTools.map(chainItems, (item) => notificationStore.del(item.id));
         })
     },
     store: function({chain, values}) {
@@ -67,12 +41,12 @@ const chains = {
                 obj.index = idx;
             })
             return PromiseTools.map(values, (value) => {
-                return store.put(value);
+                return notificationStore.put(value);
             })
         })
     },
     notificationAtIndex: function(opts) {
-        return store.get(opts.chain)
+        return notificationStore.get(opts.chain)
         .then((chainItems) => {
             if (chainItems.length === 0) {
                 return console.error("No chain with the name: ", opts.chain)
@@ -150,7 +124,7 @@ const chains = {
                 
                 chainEntry.read = true;
                 
-                return store.put(chainEntry)
+                return notificationStore.put(chainEntry)
                 .then(() => {
                     return run("notification.show", {
                         title: chainEntry.title,
