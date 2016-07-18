@@ -4,17 +4,41 @@ const run = require('./run-command');
 
 const notificationStore = db.store("notificationChains");
 
+const store = {
+    get: function(chain) {
+        return new Promise((resolve, reject) => {
+            notificationStore
+                .index("byChain")
+                .get(chain, function(err, ch) {
+                    resolve(ch);
+                })
+        })
+    },
+    del: function(del) {
+        return new Promise((resolve, reject) => {
+            notificationStore.del(del, function() {
+                resolve();
+            })
+        })
+    },
+    put: function(item) {
+        return new Promise((resolve, reject) => {
+            notificationStore.put(item, function (err, item) {
+                resolve(item);
+            })
+        });
+    }
+};
+
 const getNextNotificationForChain = function(chain, skipID) {
-    return notificationStore
-            .index("byChain")
-            .get(chain)
+    return store.get(chain)
         .then((chainItems) => {
             return chainItems
                 .filter((i) => i.read !== true && (!skipID || i.id !== skipID))
                 .sort((a,b) => a.idx - b.idx)
                 [0]
         })
-}
+};
 
 const chains = {
     download: function(opts) {
@@ -27,11 +51,9 @@ const chains = {
         })
     },
     delete: function(chain) {
-        return notificationStore
-            .index("byChain")
-            .get(chain)
+        return store.get(chain)
         .then((chainItems) => {
-            return PromiseTools.map(chainItems, (item) => notificationStore.del(item.id));
+            return PromiseTools.map(chainItems, (item) => store.del(item.id));
         })
     },
     store: function({chain, values}) {
@@ -45,14 +67,12 @@ const chains = {
                 obj.index = idx;
             })
             return PromiseTools.map(values, (value) => {
-                return notificationStore.put(value);
+                return store.put(value);
             })
         })
     },
     notificationAtIndex: function(opts) {
-        return notificationStore
-            .index("byChain")
-            .get(opts.chain)
+        return store.get(opts.chain)
         .then((chainItems) => {
             if (chainItems.length === 0) {
                 return console.error("No chain with the name: ", opts.chain)
@@ -130,7 +150,7 @@ const chains = {
                 
                 chainEntry.read = true;
                 
-                return notificationStore.put(chainEntry)
+                return store.put(chainEntry)
                 .then(() => {
                     return run("notification.show", {
                         title: chainEntry.title,

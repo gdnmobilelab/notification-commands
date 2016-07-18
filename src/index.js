@@ -5,6 +5,7 @@ const commandSequence = require('./command-sequence');
 const runCommand = require('./run-command');
 const browser = require('./browser');
 const poll = require('./poll');
+const quiz = require('./quiz');
 const fromURL = require('./from-url');
 const config = require('./config');
 const cache = require('./cache');
@@ -18,6 +19,7 @@ const commands = {
     fromURL,
     cache,
     poll,
+    quiz,
     update: () => self.registration.update()
 };
 
