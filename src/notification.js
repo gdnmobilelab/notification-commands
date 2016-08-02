@@ -28,7 +28,8 @@ const mapActionsToNotification = function(notification, actions) {
         }));
         
         // We use this in analytics to track which button was actually pressed
-        notification.data.commandToActionLabelMap.push(action.template.title);
+        //Use actionID to uniquely identify the action
+        notification.data.commandToActionLabelMap.push(action.template.title + (action.actionID ? '-' + action.actionID : ''));
     })
 };
 
