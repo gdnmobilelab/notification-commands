@@ -1,5 +1,5 @@
 const getRegistration = require('./util/get-registration');
-const analytics = require('google-analytics-protocol');
+const analytics = require('./analytics-with-context');
 const run = require('./run-command');
 
 const mapActionsToNotification = function(notification, actions) {
@@ -33,11 +33,22 @@ const mapActionsToNotification = function(notification, actions) {
 };
 
 const getNotificationID = function(baseObj) {
-    if (!baseObj || !baseObj.data) {
-        console.error("Notification does not have an ID.")
-        if (baseObj.title) {
-            return baseObj.title
+    
+    let backupTitle = baseObj.title;
+
+    // This is messy because we're dealing with different source objects.
+    
+    if (baseObj && baseObj.options) {
+        baseObj = baseObj.options;
+    }
+
+    
+    if (!baseObj || !baseObj.data || !baseObj.data.notificationID) {
+        if (backupTitle) {
+            console.warn("Notification does not have ID, using title")
+            return backupTitle
         } else {
+            console.error("Notification does not have an ID.")
             return null;
         }
         
@@ -56,6 +67,7 @@ const notification = {
 
         if (context) {
             // We can pass context through notifications
+            opts.options.data = opts.options.data || {};
             opts.options.data.context = context;
             if (swapNotificationActions !== true && swapNotificationActions !== false) {
                 swapNotificationActions = context.swapNotificationActions
@@ -75,7 +87,7 @@ const notification = {
 
         
 
-        let notificationID = getNotificationID(opts.options);
+        let notificationID = getNotificationID(opts);
         
         return getRegistration().showNotification(opts.title, opts.options)
         .then(() => {
@@ -86,7 +98,7 @@ const notification = {
                 el: opts.title,
                 // This requires you to have a custom dimension set up to record notification IDs
                 cd1: notificationID
-            })
+            }, context)
         })
     },
     close: function(opts, event) {
@@ -102,12 +114,13 @@ const notification = {
         return Promise.resolve();
     },
     parseNotificationAction: function(event) {
+        let context = event.notification.data ? event.notification.data.context : null;
         if (event.action === '' && event.notification.data && event.notification.data.onTap) {
             return event.waitUntil(
                 run("commandSequence", {
                     sequence: event.notification.data.onTap,
                     event: event,
-                    context: event.notification.data ? event.notification.data.context : null
+                    context: context
                 })
                 .then(() => {
                     analytics({
@@ -116,7 +129,7 @@ const notification = {
                         ea: 'tap',
                         el: event.notification.title,
                         cd1: getNotificationID(event.notification)
-                    })
+                    }, context)
                 })
             );
         }
@@ -132,7 +145,7 @@ const notification = {
                 run("commandSequence", {
                     sequence: commandSequence,
                     event: event,
-                    context: event.notification.data ? event.notification.data.context : null
+                    context: context
                 }).then(() => {
                     analytics({
                         t: 'event',
@@ -140,7 +153,7 @@ const notification = {
                         ea: 'tap-action',
                         el: actionLabel,
                         cd1: getNotificationID(event.notification)
-                    })
+                    }, context)
                 })
             );
             

@@ -68,7 +68,7 @@ const chains = {
             });
         })
     },
-    notificationFromChain: function(opts) {
+    notificationFromChain: function(opts, event, context) {
         return getNextNotificationForChain(opts.chain)
         .then((chainEntry) => {
             
@@ -136,7 +136,7 @@ const chains = {
                         title: chainEntry.title,
                         options: chainEntry.notificationTemplate,
                         actionCommands: actions
-                    });
+                    }, null, context);
                 })
                 
             })

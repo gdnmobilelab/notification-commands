@@ -25,9 +25,21 @@ module.exports = {
             if (!regexResult || ! customOperations[regexResult[1]]) {
                 continue;
             }
-            let newValue = customOperations[regexResult[1]]();
+
+            let operation = customOperations[regexResult[1]];
+
+            let newValue = operation();
             console.info(`Operation ${regexResult[1]} called for ${key}, new value is ${newValue}`)
             opts.context[key] = newValue;
+
+            // Need to make this resusable... somehow. Difficult when GA
+            // requires hard-coded custom variable indexes.
+            
+            if (value === '{{randomBool}}') {
+                opts.context.analyticsData = {
+                    cd2: String(newValue)
+                }
+            }
         }
 
         Object.assign(context, opts.context);
