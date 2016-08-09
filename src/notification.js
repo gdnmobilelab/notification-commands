@@ -64,7 +64,7 @@ const notification = {
             mapActionsToNotification(opts.options, opts.actionCommands);
         }
 
-        let {swapNotificationActions} = opts;
+        let swapNotificationActions = {opts};
 
         if (context) {
             // We can pass context through notifications
