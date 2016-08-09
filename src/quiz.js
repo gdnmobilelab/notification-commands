@@ -33,7 +33,7 @@ function QuizStore() {
 var quizStore = new QuizStore();
 
 module.exports = {
-    answerQuestion: function({quizId, questionId, answerId, trueOrFalse, index, chain, nextText}) {
+    answerQuestion: function({quizId, questionId, answerId, answerBody, answerTitle, index, chain, nextText}) {
         quizStore.addAnswer(quizId, questionId, answerId);
 
         notificationStore
@@ -73,9 +73,9 @@ module.exports = {
                 }
 
                 return run("notification.show", {
-                    title: chainEntry.title,
+                    title: answerTitle,
                     options: {
-                        body: trueOrFalse,
+                        body: answerBody,
                         tag: chain,
                         icon: chainEntry.notificationTemplate.icon,
                         data: {
