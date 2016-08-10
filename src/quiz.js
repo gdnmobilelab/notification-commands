@@ -82,6 +82,7 @@ module.exports = {
                             notificationID: chain
                         }
                     },
+                    swapNotificationActions: Math.random() >= 0.5,
                     actionCommands: [nextQuestion]
                 }, null, context)
             });
