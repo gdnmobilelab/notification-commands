@@ -33,7 +33,7 @@ function QuizStore() {
 var quizStore = new QuizStore();
 
 module.exports = {
-    answerQuestion: function({quizId, questionId, answerId, answerBody, answerTitle, index, chain, nextText}) {
+    answerQuestion: function({quizId, questionId, answerId, answerBody, answerTitle, index, chain, nextText}, events, context) {
         quizStore.addAnswer(quizId, questionId, answerId);
 
         notificationStore
@@ -83,7 +83,7 @@ module.exports = {
                         }
                     },
                     actionCommands: [nextQuestion]
-                })
+                }, null, context)
             });
     },
 
