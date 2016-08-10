@@ -71,10 +71,6 @@ module.exports = {
                         }
                     }];
                 }
-                
-                if (context && context.swapNotificationActions) {
-                    context.swapNotificationActions = Math.random() >= 0.5;
-                }
 
                 return run("notification.show", {
                     title: answerTitle,
