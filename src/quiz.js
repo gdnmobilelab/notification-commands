@@ -48,7 +48,7 @@ module.exports = {
                     return console.error("No chain with the name: ", chain)
                 }
 
-                let correctAnswers = quizStore.getAnswers(quizId).filter((answer) => answer.trueOrFalse);
+                let correctAnswers = quizStore.getAnswers(quizId).filter((answer) => answer.correctAnswer);
                 return run("notification.show", chainItems[correctAnswers.length]);
             });
 
