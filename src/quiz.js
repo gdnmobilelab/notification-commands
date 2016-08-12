@@ -33,8 +33,8 @@ function QuizStore() {
 var quizStore = new QuizStore();
 
 module.exports = {
-    answerQuestion: function({quizId, questionId, answerId, showNotification}) {
-        quizStore.addAnswer(quizId, questionId, answerId);
+    answerQuestion: function({quizId, questionId, answerId, correctAnswer, showNotification}) {
+        quizStore.addAnswer(quizId, questionId, answerId, correctAnswer);
 
         return run("notification.show", showNotification);
     },
