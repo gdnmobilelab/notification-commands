@@ -49,7 +49,7 @@ const chains = {
                 })
             })
     },
-    notificationAtIndex: function(opts) {
+    notificationAtIndex: function(opts, event, context) {
         return notificationStore
             .index("byChain")
             .get(opts.chain)
@@ -65,7 +65,7 @@ const chains = {
                 title: chainEntry.title,
                 options: chainEntry.notificationTemplate,
                 actionCommands: chainEntry.actions
-            });
+            }, null, context);
         })
     },
     notificationFromChain: function(opts, event, context) {
@@ -136,7 +136,7 @@ const chains = {
                                 title: chainEntry.title,
                                 options: chainEntry.notificationTemplate,
                                 actionCommands: actions
-                            });
+                            }, null, context);
                         })
 
                 })

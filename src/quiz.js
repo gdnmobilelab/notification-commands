@@ -60,6 +60,8 @@ module.exports = {
                     subscription: subscription
                 }
             });
+        }).catch((err) => {
+            console.log(err);
         });
     }
 };
