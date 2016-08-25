@@ -4,32 +4,24 @@ const quizRequest = ballotRequest.quizRequest;
 const run = require('./run-command');
 const db = require('./util/db');
 
+const quizAnswers = db.store("quizAnswers");
 const notificationStore = db.store("notificationChains");
 
 function QuizStore() {
-    var store = {};
 
     this.addAnswer = function(quizId, questionId, answerId, correctAnswer) {
-        var quizStore = store[quizId] || {};
-
-        quizStore[questionId] = {
-            id: answerId,
-            correctAnswer: correctAnswer
-        };
-        store[quizId] = quizStore;
+        quizAnswers.put({
+            "answerId": answerId,
+            "questionId": questionId,
+            "quizId": quizId,
+            "correctAnswer": correctAnswer
+        });
     };
 
     this.getAnswers = function(quizId) {
-        var quizStore = store[quizId] || {};
-        var quizArray = [];
-
-        for (var key in quizStore) {
-            if (quizStore.hasOwnProperty(key)) {
-                quizArray.push({questionId: key, answer: quizStore[key]})
-            }
-        }
-
-        return quizArray;
+        return quizAnswers
+            .index("byQuiz")
+            .get(quizId);
     }
 }
 
@@ -51,22 +43,23 @@ module.exports = {
                     return console.error("No chain with the name: ", chain)
                 }
 
-                let correctAnswers = quizStore.getAnswers(quizId).filter((a) => a.answer.correctAnswer);
-                return run("notification.show", chainItems[correctAnswers.length]);
-            });
+                quizStore.getAnswers(quizId).then((answers) => {
+                    let correctAnswers = answers.filter((a) => a.correctAnswer);
 
-        getRegistration().pushManager.getSubscription().then((subscription) => {
-            return quizRequest('/' + quizId + '/submit', 'POST', {
-                answers: quizStore.getAnswers(quizId).map((a) => {
-                    return {questionId: a.questionId, answerId: a.answer.id}
-                }),
-                user: {
-                    id: subscription.endpoint,
-                    subscription: subscription
-                }
+                    run("notification.show", chainItems[correctAnswers.length]);
+
+                    getRegistration().pushManager.getSubscription().then((subscription) => {
+                        return quizRequest('/' + quizId + '/submit', 'POST', {
+                            answers: answers,
+                            user: {
+                                id: subscription.endpoint,
+                                subscription: subscription
+                            }
+                        });
+                    }).catch((err) => {
+                        console.log(err);
+                    });
+                })
             });
-        }).catch((err) => {
-            console.log(err);
-        });
     }
 };
