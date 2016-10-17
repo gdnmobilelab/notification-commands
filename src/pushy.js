@@ -36,8 +36,10 @@ const pushyRequest = function(endpoint, method = 'GET', body = '') {
 
 module.exports = {
     subscribeToTopic: function(opts) {
+        console.log('trying to subscribe')
         return getRegistration().pushManager.getSubscription()
         .then((sub) => {
+            console.log('got sub', sub)
             if (sub === null) {
                 throw new Error("Subscription has to be created outside of Service Worker first (no idea why)")
             }

@@ -59,7 +59,7 @@ const getNotificationID = function(baseObj) {
 
 const notification = {
     show: function(opts, event, context) {
-        
+        console.log("SHOW NOTIFICATION")
         if (opts.actionCommands) {
             mapActionsToNotification(opts.options, opts.actionCommands);
         }
@@ -115,51 +115,60 @@ const notification = {
         return Promise.resolve();
     },
     parseNotificationAction: function(event) {
-        let context = event.notification.data ? event.notification.data.context : null;
-        if (event.action === '' && event.notification.data && event.notification.data.onTap) {
-            return event.waitUntil(
-                run("commandSequence", {
-                    sequence: event.notification.data.onTap,
-                    event: event,
-                    context: context
-                })
-                .then(() => {
-                    analytics({
-                        t: 'event',
-                        ec: 'Notification',
-                        ea: 'tap',
-                        el: event.notification.title,
-                        cd1: getNotificationID(event.notification)
-                    }, context)
-                })
-            );
-        }
+        console.log(JSON.stringify(event.notification.data))
+        Promise.resolve()
+        .then(() => {
+            let context = event.notification.data ? event.notification.data.context : null;
+            if (event.action === '' && event.notification.data && event.notification.data.onTap) {
+                return event.waitUntil(
+                    run("commandSequence", {
+                        sequence: event.notification.data.onTap,
+                        event: event,
+                        context: context
+                    })
+                    .then(() => {
+                        analytics({
+                            t: 'event',
+                            ec: 'Notification',
+                            ea: 'tap',
+                            el: event.notification.title,
+                            cd1: getNotificationID(event.notification)
+                        }, context)
+                    })
+                );
+            }
+            
+            if (event.action.indexOf('__command') === 0) {
+                // it's an action mapped to a command sequence.
+                
+                let sequenceIndex = parseInt(event.action.split("::")[1], 10);
+                let commandSequence = event.notification.data.commandSequences[sequenceIndex];
+                let actionLabel = event.notification.data.commandToActionLabelMap[sequenceIndex];
+                console.log("COMMAND SEQUENCE", JSON.stringify(commandSequence))
+                return event.waitUntil(
+                    run("commandSequence", {
+                        sequence: commandSequence,
+                        event: event,
+                        context: context
+                    }).then(() => {
+                        analytics({
+                            t: 'event',
+                            ec: 'Notification',
+                            ea: 'tap-action',
+                            el: actionLabel,
+                            cd1: getNotificationID(event.notification)
+                        }, context)
+                    })
+                );
+                
+                
+            }
+            
+        })
+        .catch((err) => {
+            console.error(err.message);
+        })
         
-        if (event.action.indexOf('__command') === 0) {
-            // it's an action mapped to a command sequence.
-
-            let sequenceIndex = parseInt(event.action.split("::")[1], 10);
-            let commandSequence = event.notification.data.commandSequences[sequenceIndex];
-            let actionLabel = event.notification.data.commandToActionLabelMap[sequenceIndex];
-            
-            return event.waitUntil(
-                run("commandSequence", {
-                    sequence: commandSequence,
-                    event: event,
-                    context: context
-                }).then(() => {
-                    analytics({
-                        t: 'event',
-                        ec: 'Notification',
-                        ea: 'tap-action',
-                        el: actionLabel,
-                        cd1: getNotificationID(event.notification)
-                    }, context)
-                })
-            );
-            
-            
-        }
     },
     parseNotificationClose(event) {
         
@@ -184,6 +193,13 @@ const notification = {
     receivePush(event) {
       
         let obj = event.data.json();
+        
+        console.log(obj.data)
+        if (obj.data && obj.data.payload) {
+            // For Firebase notifications
+            obj = JSON.parse(obj.data.payload)
+        }
+
         console.log("received push", obj);
 
         if (obj instanceof Array) {
