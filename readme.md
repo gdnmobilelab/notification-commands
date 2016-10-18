@@ -98,3 +98,33 @@ commands you want to run when the user taps on that notification. The `template`
 options that will be passed through to the 
 [native API](https://developers.google.com/web/updates/2016/01/notification-actions) - currently only
 `title` and `icon` are supported.
+
+### Tap and close events
+
+If you want to have the notification act on tap and/or close events, you can add a key to the `data`
+attribute in the notification options with an array of commands. Like so:
+
+    runCommand("notification.show", {
+        title: "Notification Title",
+        options: {
+            body: "Notification body",
+            data: {
+                onTap: [
+                    {
+                        command: "notification.close"
+                    }
+                ],
+                onClose: [
+                    {
+                        command: "notification.show",
+                        options: {
+                            title: "Surprise!",
+                            options: {
+                                body: "Probably don't show another notification on close, though"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    })
