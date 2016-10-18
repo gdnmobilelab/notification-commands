@@ -6,8 +6,8 @@ to load items into IndexedDB, show notifications, etc.
 ## How do I use it?
 
 If you only want to respond to push events, just `require()` this module somewhere in your
-code and it will hook into the `push`, `notificationclick` and `notificationclose` events
-automatically.
+service worker code and it will hook into the `push`, `notificationclick` and `notificationclose` 
+events automatically.
 
 If you want to be able to call these commands from the browser, you need to also include the
 [service-worker-command-bridge](https://github.com/gdnmobilelab/service-worker-command-bridge)
