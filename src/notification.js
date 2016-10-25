@@ -64,7 +64,7 @@ const notification = {
             mapActionsToNotification(opts.options, opts.actionCommands);
         }
 
-        let swapNotificationActions = {opts};
+        let {swapNotificationActions} = opts;
 
         if (context) {
             // We can pass context through notifications
@@ -115,7 +115,7 @@ const notification = {
         return Promise.resolve();
     },
     parseNotificationAction: function(event) {
-        console.log(JSON.stringify(event.notification.data))
+
         Promise.resolve()
         .then(() => {
             let context = event.notification.data ? event.notification.data.context : null;
@@ -137,14 +137,15 @@ const notification = {
                     })
                 );
             }
-            
-            if (event.action.indexOf('__command') === 0) {
+        
+        
+            if (event.action && event.action.indexOf('__command') === 0) {
                 // it's an action mapped to a command sequence.
-                
+
                 let sequenceIndex = parseInt(event.action.split("::")[1], 10);
                 let commandSequence = event.notification.data.commandSequences[sequenceIndex];
                 let actionLabel = event.notification.data.commandToActionLabelMap[sequenceIndex];
-                console.log("COMMAND SEQUENCE", JSON.stringify(commandSequence))
+                
                 return event.waitUntil(
                     run("commandSequence", {
                         sequence: commandSequence,
@@ -160,9 +161,8 @@ const notification = {
                         }, context)
                     })
                 );
-                
-                
             }
+
             
         })
         .catch((err) => {

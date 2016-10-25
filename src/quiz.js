@@ -4,38 +4,37 @@ const quizRequest = ballotRequest.quizRequest;
 const run = require('./run-command');
 const db = require('./util/db');
 
+const quizAnswers = db.store("quizAnswers");
 const notificationStore = db.store("notificationChains");
 
 function QuizStore() {
-    var store = {};
 
-    this.addAnswer = function(quizId, questionId, answerId) {
-        var quizStore = store[quizId] || {};
-
-        quizStore[questionId] = answerId;
-        store[quizId] = quizStore;
+    this.addAnswer = function(quizId, questionId, answerId, correctAnswer) {
+        quizAnswers.put({
+            "answerId": answerId,
+            "questionId": questionId,
+            "quizId": quizId,
+            "correctAnswer": correctAnswer
+        });
     };
 
     this.getAnswers = function(quizId) {
-        var quizStore = store[quizId] || {};
-        var quizArray = [];
-
-        for (var key in quizStore) {
-            if (quizStore.hasOwnProperty(key)) {
-                quizArray.push({questionId: key, answerId: quizStore[key]})
-            }
-        }
-
-        return quizArray;
+        return quizAnswers
+            .index("byQuiz")
+            .get(quizId);
     }
 }
 
 var quizStore = new QuizStore();
 
 module.exports = {
-    answerQuestion: function({quizId, questionId, answerId, trueOrFalse, index, chain, nextText}) {
-        quizStore.addAnswer(quizId, questionId, answerId);
+    answerQuestion: function({quizId, questionId, answerId, correctAnswer, showNotification}) {
+        quizStore.addAnswer(quizId, questionId, answerId, correctAnswer);
 
+        return run("notification.show", showNotification);
+    },
+
+    submitAnswers: function ({quizId, chain}) {
         notificationStore
             .index("byChain")
             .get(chain)
@@ -44,58 +43,23 @@ module.exports = {
                     return console.error("No chain with the name: ", chain)
                 }
 
-                //Index is the next index, so get the previous notification
-                let chainEntry = chainItems[(index || chainItems.length) - 1];
+                quizStore.getAnswers(quizId).then((answers) => {
+                    let correctAnswers = answers.filter((a) => a.correctAnswer);
 
-                let nextQuestion = {
-                    "label": "web-link",
-                    "commands": [
-                        {
-                            "command": "chains.notificationAtIndex",
-                            "options": {
-                                "chain": chain,
-                                "index": index
+                    run("notification.show", chainItems[correctAnswers.length]);
+
+                    getRegistration().pushManager.getSubscription().then((subscription) => {
+                        return quizRequest('/' + quizId + '/submit', 'POST', {
+                            answers: answers,
+                            user: {
+                                id: subscription.endpoint,
+                                subscription: subscription
                             }
-                        }
-                    ],
-                    "template": {
-                        "title": nextText
-                    }
-                };
-
-                if (!index) {
-                    nextQuestion.commands = [{
-                        "command": "quiz.submitAnswers",
-                        "options": {
-                            "quizId": quizId
-                        }
-                    }];
-                }
-
-                return run("notification.show", {
-                    title: chainEntry.title,
-                    options: {
-                        body: trueOrFalse,
-                        tag: chain,
-                        icon: chainEntry.notificationTemplate.icon,
-                        data: {
-                            notificationID: chain
-                        }
-                    },
-                    actionCommands: [nextQuestion]
+                        });
+                    }).catch((err) => {
+                        console.log(err);
+                    });
                 })
             });
-    },
-
-    submitAnswers: function ({quizId}) {
-        getRegistration().pushManager.getSubscription().then((subscription) => {
-            return quizRequest('/' + quizId + '/submitAnswers', 'POST', {
-                answers: quizStore.getAnswers(quizId),
-                user: {
-                    id: subscription.endpoint,
-                    subscription: subscription
-                }
-            });
-        });
     }
 };
