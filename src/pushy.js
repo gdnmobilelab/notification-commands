@@ -26,10 +26,13 @@ const pushyRequest = function(endpoint, method = 'GET', body = '') {
         }
         return response.json()
         .then((json) => {
-            if (json.errorMessage) {
-                throw new Error(json.errorMessage);
+            if (json) {
+                if (json.errorMessage) {
+                    throw new Error(json.errorMessage);
+                }
+           
             }
-            return json;
+             return json;
         })
     })
 }

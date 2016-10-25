@@ -116,7 +116,7 @@ const notification = {
     },
     parseNotificationAction: function(event) {
         let context = event.notification.data ? event.notification.data.context : null;
-        if (event.action === '' && event.notification.data && event.notification.data.onTap) {
+        if ((!event.action || event.action === '') && event.notification.data && event.notification.data.onTap) {
             return event.waitUntil(
                 run("commandSequence", {
                     sequence: event.notification.data.onTap,
@@ -135,7 +135,7 @@ const notification = {
             );
         }
         
-        if (event.action.indexOf('__command') === 0) {
+        if (event.action && event.action.indexOf('__command') === 0) {
             // it's an action mapped to a command sequence.
 
             let sequenceIndex = parseInt(event.action.split("::")[1], 10);
