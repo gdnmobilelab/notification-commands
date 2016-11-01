@@ -37,10 +37,8 @@ const pushkinRequest = function(endpoint, method = 'GET', body = '') {
 
 
 const getSubscriptionID = function() {
-    console.log("GET SUB")
     return getRegistration().pushManager.getSubscription()
     .then((sub) => {
-        console.log("GOT SUB")
         return pushkinRequest("/registrations", "POST", {
             subscription: sub
         })
@@ -51,9 +49,7 @@ const getSubscriptionID = function() {
 }
 
 module.exports = {
-    subscribeToTopic: function(opts) {
-        console.log('subscribe with opts', opts)
-        
+    subscribeToTopic: function(opts) {  
         return getSubscriptionID()
         .then((subId) => {
             return pushkinRequest(`/topics/${opts.topic}/subscribers/${encodeURIComponent(subId)}`, 'POST', {
