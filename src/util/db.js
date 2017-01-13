@@ -7,7 +7,9 @@ const schema = treo.schema()
         .addIndex("byChain", "chain")
     .version(2)
         .addStore("quizAnswers", {key: ["questionId", "quizId"]})
-        .addIndex("byQuiz", "quizId");
+        .addIndex("byQuiz", "quizId")
+    .version(3)
+        .addStore("pushkinSubscriptions", {key: "topic_id"})
         
 const db = treo('notification-commands', schema)
     .use(treoPromise());

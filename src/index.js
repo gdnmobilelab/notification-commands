@@ -11,6 +11,8 @@ const config = require('./config');
 const cache = require('./cache');
 const context = require('./context');
 const pushkinFirebase = require('./pushkin-firebase')
+const video = require('./video');
+
 
 const commands = {
     pushy,
@@ -24,6 +26,7 @@ const commands = {
     context,
     quiz,
     pushkinFirebase,
+    video,
     update: () => self.registration.update()
 };
 
@@ -57,6 +60,3 @@ module.exports = {
     setConfig: config.update,
     run: runCommand
 };
-
-// for testing, to run commands in console
-self.runCommand = runCommand
