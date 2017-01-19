@@ -10,6 +10,9 @@ const fromURL = require('./from-url');
 const config = require('./config');
 const cache = require('./cache');
 const context = require('./context');
+const pushkinFirebase = require('./pushkin-firebase')
+const video = require('./video');
+
 
 const commands = {
     pushy,
@@ -22,6 +25,8 @@ const commands = {
     poll,
     context,
     quiz,
+    pushkinFirebase,
+    video,
     update: () => self.registration.update()
 };
 

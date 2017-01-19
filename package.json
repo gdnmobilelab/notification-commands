@@ -15,5 +15,8 @@
   },
   "peerDependencies": {
     "google-analytics-protocol": "^1.0.0"
+  },
+  "devDependencies": {
+    "buble": "^0.14.0"
   }
 }

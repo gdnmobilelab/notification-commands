@@ -13,4 +13,4 @@ const runCommand = function(name, opts, event, context) {
 
 module.exports = runCommand;
 
-self.runCommand = runCommand;
+self._runCommand = runCommand;

@@ -69,6 +69,7 @@ const chains = {
         })
     },
     notificationFromChain: function(opts, event, context) {
+        
         return getNextNotificationForChain(opts.chain)
             .then((chainEntry) => {
 
