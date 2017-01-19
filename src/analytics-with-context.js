@@ -3,7 +3,8 @@ const analytics = require('google-analytics-protocol');
 module.exports = function (opts, context) {
   
     if (context && context.analyticsData) {
-        opts = Object.assign({}, context.analyticsData, opts);
+    	// Letting context override props
+        opts = Object.assign({}, opts, context.analyticsData);
     }
     
     analytics(opts);
