@@ -5,6 +5,7 @@ const schema = treo.schema()
     .version(1)
         .addStore("notificationChains", {key: "id", increment: true})
         .addIndex("byChain", "chain")
+    .version(2)
         .addStore("quizAnswers", {key: ["questionId", "quizId"]})
         .addIndex("byQuiz", "quizId");
         
